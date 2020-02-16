@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: ff-core
+
+flash.event.log.enable: true
