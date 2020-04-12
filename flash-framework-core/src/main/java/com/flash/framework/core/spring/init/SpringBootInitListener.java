@@ -1,5 +1,6 @@
 package com.flash.framework.core.spring.init;
 
+import com.google.common.base.Throwables;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -59,6 +60,7 @@ public class SpringBootInitListener implements ApplicationListener<ContextRefres
                 threadPoolTaskExecutor.setQueueCapacity(100);
                 threadPoolTaskExecutor.setThreadNamePrefix("SpringBootInitListener-thread");
                 threadPoolTaskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+                threadPoolTaskExecutor.initialize();
             }
         }
     }
@@ -76,7 +78,7 @@ public class SpringBootInitListener implements ApplicationListener<ContextRefres
                             handler.handle(applicationContext);
                         }
                     } catch (Throwable e) {
-                        log.error("[Flash Framework] InitListenerHandler {} handle failed ,cause:", handler.getClass().getCanonicalName(), e);
+                        log.error("[Flash Framework] InitListenerHandler {} handle failed ,cause:{}", handler.getClass().getCanonicalName(), Throwables.getStackTraceAsString(e));
                     }
                 });
             }

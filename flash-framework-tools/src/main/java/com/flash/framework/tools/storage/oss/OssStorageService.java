@@ -9,6 +9,7 @@ import com.aliyun.oss.model.PutObjectRequest;
 import com.flash.framework.tools.storage.ObjectStorageResponse;
 import com.flash.framework.tools.storage.StorageService;
 import com.flash.framework.tools.storage.StorageServiceConfigure;
+import com.google.common.base.Throwables;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
@@ -66,7 +67,7 @@ public class OssStorageService implements StorageService, ApplicationContextAwar
             ossClient.getObject(new GetObjectRequest(bucketName(), objectName)
                     .withProgressListener(new OssProgressListener(objectName, objectStorageProgress)), new File(localFile));
         } catch (Exception e) {
-            log.error("[Flash Framework] Storage download failed,cause:", e);
+            log.error("[Flash Framework] Storage download failed,cause:{}", Throwables.getStackTraceAsString(e));
         }
     }
 
@@ -76,7 +77,7 @@ public class OssStorageService implements StorageService, ApplicationContextAwar
             ossClient.getObject(new GetObjectRequest(bucketName(), objectName)
                     .withProgressListener(new OssProgressListener(objectName, objectStorageProgress)), file);
         } catch (Exception e) {
-            log.error("[Flash Framework] Storage download failed,cause:", e);
+            log.error("[Flash Framework] Storage download failed,cause:{}", Throwables.getStackTraceAsString(e));
         }
     }
 
@@ -85,7 +86,7 @@ public class OssStorageService implements StorageService, ApplicationContextAwar
         try {
             ossClient.deleteObject(bucketName(), objectName);
         } catch (Exception e) {
-            log.error("[Flash Framework] Storage delete failed,cause:", e);
+            log.error("[Flash Framework] Storage delete failed,cause:{}", Throwables.getStackTraceAsString(e));
         }
     }
 
@@ -94,7 +95,7 @@ public class OssStorageService implements StorageService, ApplicationContextAwar
             putObjectRequest.withProgressListener(new OssProgressListener(objectName, objectStorageProgress));
             ossClient.putObject(putObjectRequest);
         } catch (Exception e) {
-            log.error("[Flash Framework] Storage upload failed,cause:", e);
+            log.error("[Flash Framework] Storage upload failed,cause:{}", Throwables.getStackTraceAsString(e));
         }
     }
 

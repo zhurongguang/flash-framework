@@ -1,7 +1,7 @@
 package com.flash.framework.core.support.processor.graph.executor;
 
 import com.flash.framework.core.support.processor.BizProcessor;
-import com.flash.framework.core.support.processor.BizProcessorContext;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -98,7 +98,7 @@ public class GraphTaskExecutor {
         }
     }
 
-    public void execute(final BizProcessorContext context) {
+    public <C> void execute(final C context) throws Exception {
         try {
             List<TaskWrapper> starts = Lists.newArrayList();
 
@@ -138,13 +138,14 @@ public class GraphTaskExecutor {
 
             executorLatch.await();
         } catch (Throwable e) {
-            log.error("[Flash Framework] BizProcessor execute failed,cause:", e);
+            log.error("[Flash Framework] BizProcessor execute failed,cause:{}", Throwables.getStackTraceAsString(e));
+            throw e;
         } finally {
             executor.shutdown();
         }
     }
 
-    private void executeGraph(TaskWrapper taskWrapper, BizProcessorContext context) {
+    private <C> void executeGraph(TaskWrapper taskWrapper, C context) {
         Set<TaskWrapper> successors = taskDag.successors(taskWrapper);
         if (CollectionUtils.isNotEmpty(successors)) {
             successors.forEach(wrapper -> {
@@ -155,13 +156,13 @@ public class GraphTaskExecutor {
         }
     }
 
-    private void submitTask(TaskWrapper task, BizProcessorContext context) {
+    private <C> void submitTask(TaskWrapper task, C context) {
         synchronized (submitedTasks) {
             if (!submitedTasks.contains(task.getTaskName())) {
                 submitedTasks.add(task.getTaskName());
 
                 executor.submit(() -> {
-                    BizProcessorContext bizProcessorContext = task.execute(context);
+                    C bizProcessorContext = task.execute(context);
                     if (Objects.isNull(bizProcessorContext)) {
                         return;
                     }
@@ -179,13 +180,12 @@ public class GraphTaskExecutor {
     public synchronized void finish(TaskWrapper task) {
         finished.add(task);
         executorLatch.countDown();
-        System.out.println(executorId + " finish " + task.getTaskName() + "  latch " + executorLatch.getCount());
     }
 
     /**
      * 任务回滚
      */
-    public synchronized void failback(BizProcessorContext context) {
+    public synchronized <C> void failback(C context) {
         if (!running() && !rollback.getAndSet(true)) {
             finished.forEach(task -> task.rollback(context));
         }

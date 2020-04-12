@@ -1,6 +1,7 @@
 package com.flash.framework.core.support.retry;
 
 import com.github.rholder.retry.*;
+import com.google.common.base.Throwables;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +23,7 @@ public class RetryHelper {
             @Override
             public <V> void onRetry(Attempt<V> attempt) {
                 if (attempt.hasException()) {
-                    log.error("[Flash Framework] RetryMethod method execute failed,cause:", attempt.getExceptionCause());
+                    log.error("[Flash Framework] RetryMethod method execute failed,cause:{}", Throwables.getStackTraceAsString(attempt.getExceptionCause()));
                 }
             }
         }, callable);

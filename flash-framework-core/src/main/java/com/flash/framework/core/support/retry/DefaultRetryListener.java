@@ -2,6 +2,7 @@ package com.flash.framework.core.support.retry;
 
 import com.github.rholder.retry.Attempt;
 import com.github.rholder.retry.RetryListener;
+import com.google.common.base.Throwables;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -22,7 +23,7 @@ public class DefaultRetryListener implements RetryListener {
     @Override
     public <V> void onRetry(Attempt<V> attempt) {
         if (attempt.hasException()) {
-            log.error("[Flash Framework] MethodRetry {} execute failed,cause:", method, attempt.getExceptionCause());
+            log.error("[Flash Framework] MethodRetry {} execute failed,cause:{}", method, Throwables.getStackTraceAsString(attempt.getExceptionCause()));
         }
     }
 }

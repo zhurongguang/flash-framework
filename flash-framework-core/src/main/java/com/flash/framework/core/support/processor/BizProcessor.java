@@ -9,7 +9,7 @@ import org.springframework.core.annotation.AnnotationUtils;
  * @author zhurg
  * @date 2018/11/7 - 下午12:59
  */
-public interface BizProcessor<C extends BizProcessorContext> {
+public interface BizProcessor<C> {
 
     String BIZ_PROCESSOR_CONTEXT = "context";
 

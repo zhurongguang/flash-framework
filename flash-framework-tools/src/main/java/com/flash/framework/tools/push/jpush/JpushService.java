@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSON;
 import com.flash.framework.tools.push.PushMessage;
 import com.flash.framework.tools.push.PushService;
 import com.flash.framework.tools.push.PushServiceConfigure;
+import com.google.common.base.Throwables;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -41,7 +42,7 @@ public class JpushService implements PushService {
         if (null == clientConfig) {
             clientConfig = ClientConfig.getInstance();
         }
-        this.jPushClient = new JPushClient(pushServiceConfigure.getMasterSecret(), pushServiceConfigure.getAppKey(), null, clientConfig);
+        this.jPushClient = new JPushClient(pushServiceConfigure.getAppSecret(), pushServiceConfigure.getAppKey(), null, clientConfig);
     }
 
 
@@ -57,8 +58,8 @@ public class JpushService implements PushService {
                     JSON.toJSONString(message), pushResult.getResponseCode());
             return false;
         } catch (Exception e) {
-            log.error("jpush send notification {} to registrationIds {} failed,cause ",
-                    registrationIds, JSON.toJSONString(message), e);
+            log.error("jpush send notification {} to registrationIds {} failed,cause:{}",
+                    registrationIds, JSON.toJSONString(message), Throwables.getStackTraceAsString(e));
             return false;
         }
     }
@@ -74,7 +75,7 @@ public class JpushService implements PushService {
             log.warn("jpush send notification {} to Android device failed", JSON.toJSONString(message));
             return false;
         } catch (Exception e) {
-            log.error("jpush send notification {} to Android device failed,cause ", JSON.toJSONString(message), e);
+            log.error("jpush send notification {} to Android device failed,cause:{}", JSON.toJSONString(message), Throwables.getStackTraceAsString(e));
             return false;
         }
     }
@@ -90,7 +91,7 @@ public class JpushService implements PushService {
             log.warn("jpush send notification {} to IOS device failed", JSON.toJSONString(message));
             return false;
         } catch (Exception e) {
-            log.error("jpush send notification {} to IOS device failed,cause ", JSON.toJSONString(message), e);
+            log.error("jpush send notification {} to IOS device failed,cause:{}", JSON.toJSONString(message), Throwables.getStackTraceAsString(e));
             return false;
         }
     }
@@ -106,7 +107,7 @@ public class JpushService implements PushService {
             log.warn("jpush send notification {} to Android device tags {} failed", JSON.toJSONString(message), tags);
             return false;
         } catch (Exception e) {
-            log.error("jpush send notification {} to Android device tags {} failed,cause ", JSON.toJSONString(message), tags, e);
+            log.error("jpush send notification {} to Android device tags {} failed,cause:{}", JSON.toJSONString(message), tags, Throwables.getStackTraceAsString(e));
             return false;
         }
     }
@@ -122,7 +123,7 @@ public class JpushService implements PushService {
             log.warn("jpush send notification {} to IOS device tags {} failed", JSON.toJSONString(message), tags);
             return false;
         } catch (Exception e) {
-            log.error("jpush send notification {} to IOS device tags {} failed,cause ", JSON.toJSONString(message), tags, e);
+            log.error("jpush send notification {} to IOS device tags {} failed,cause:{}", JSON.toJSONString(message), tags, Throwables.getStackTraceAsString(e));
             return false;
         }
     }
@@ -139,8 +140,8 @@ public class JpushService implements PushService {
                     JSON.toJSONString(message), pushResult.getResponseCode());
             return false;
         } catch (Exception e) {
-            log.error("jpush send message {} to registrationIds {} failed,cause ",
-                    registrationIds, JSON.toJSONString(message), e);
+            log.error("jpush send message {} to registrationIds {} failed,cause :{}",
+                    registrationIds, JSON.toJSONString(message), Throwables.getStackTraceAsString(e));
             return false;
         }
     }
@@ -156,7 +157,7 @@ public class JpushService implements PushService {
             log.warn("jpush send message {} to Android device failed", JSON.toJSONString(pushMessage));
             return false;
         } catch (Exception e) {
-            log.error("jpush send message {} to Android device failed,cause ", JSON.toJSONString(pushMessage), e);
+            log.error("jpush send message {} to Android device failed,cause :{}", JSON.toJSONString(pushMessage), Throwables.getStackTraceAsString(e));
             return false;
         }
     }
@@ -172,7 +173,7 @@ public class JpushService implements PushService {
             log.warn("jpush send message {} to IOS device failed", JSON.toJSONString(message));
             return false;
         } catch (Exception e) {
-            log.error("jpush send message {} to IOS device failed,cause ", JSON.toJSONString(message), e);
+            log.error("jpush send message {} to IOS device failed,cause :{}", JSON.toJSONString(message), Throwables.getStackTraceAsString(e));
             return false;
         }
     }
@@ -188,7 +189,7 @@ public class JpushService implements PushService {
             log.warn("jpush send message {} to Android device tags {} failed", JSON.toJSONString(message), tags);
             return false;
         } catch (Exception e) {
-            log.error("jpush send message {} to Android device tags {} failed,cause ", JSON.toJSONString(message), tags, e);
+            log.error("jpush send message {} to Android device tags {} failed,cause :{}", JSON.toJSONString(message), tags, Throwables.getStackTraceAsString(e));
             return false;
         }
     }
@@ -204,7 +205,7 @@ public class JpushService implements PushService {
             log.warn("jpush send message {} to IOS device tags {} failed", JSON.toJSONString(message), tags);
             return false;
         } catch (Exception e) {
-            log.error("jpush send message {} to IOS device tags {} failed,cause ", JSON.toJSONString(message), tags, e);
+            log.error("jpush send message {} to IOS device tags {} failed,cause :{}", JSON.toJSONString(message), tags, Throwables.getStackTraceAsString(e));
             return false;
         }
     }
@@ -221,7 +222,7 @@ public class JpushService implements PushService {
                     JSON.toJSONString(pushMessage), pushResult.getResponseCode());
             return false;
         } catch (Exception e) {
-            log.error("jpush send notification {} to all device failed,cause ", JSON.toJSONString(pushMessage), e);
+            log.error("jpush send notification {} to all device failed,cause :{}", JSON.toJSONString(pushMessage), Throwables.getStackTraceAsString(e));
             return false;
         }
     }
@@ -238,7 +239,7 @@ public class JpushService implements PushService {
                     JSON.toJSONString(pushMessage), pushResult.getResponseCode());
             return false;
         } catch (Exception e) {
-            log.error("jpush send notification {} to all device failed,cause ", JSON.toJSONString(pushMessage), e);
+            log.error("jpush send notification {} to all device failed,cause :{}", JSON.toJSONString(pushMessage), Throwables.getStackTraceAsString(e));
             return false;
         }
     }

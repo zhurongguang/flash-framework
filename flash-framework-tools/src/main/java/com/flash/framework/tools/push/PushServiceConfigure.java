@@ -15,7 +15,7 @@ public class PushServiceConfigure {
 
     private String appKey;
 
-    private String masterSecret;
+    private String appSecret;
 
     @NestedConfigurationProperty
     private JpushConfigure jpush;

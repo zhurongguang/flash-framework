@@ -2,6 +2,7 @@ package com.flash.framework.core.support.batch;
 
 import com.flash.framework.core.support.batch.reader.ItemReader;
 import com.flash.framework.core.support.batch.strategy.BatchProcessorStrategy;
+import com.google.common.base.Throwables;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +38,7 @@ public class BatchExecutor<T> {
         try {
             processorStrategy.process(itemReader, consumer);
         } catch (Exception e) {
-            log.error("[Flash Framework] BatchExecutor process failed,cause:", e);
+            log.error("[Flash Framework] BatchExecutor process failed,cause:{}", Throwables.getStackTraceAsString(e));
         }
     }
 }

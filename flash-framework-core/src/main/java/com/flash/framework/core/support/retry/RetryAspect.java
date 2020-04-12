@@ -1,6 +1,7 @@
 package com.flash.framework.core.support.retry;
 
 import com.flash.framework.commons.utils.AopUtils;
+import com.google.common.base.Throwables;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -36,7 +37,7 @@ public class RetryAspect {
                     new DefaultRetryListener(method.getDeclaringClass().getCanonicalName() + "." + method.getName()),
                     () -> method.invoke(joinPoint.getTarget(), joinPoint.getArgs()));
         } catch (Exception e) {
-            log.error("[Flash Framework] MethodRetry {} execute retry failed,cause:", method.getDeclaringClass().getCanonicalName() + "." + method.getName(), e);
+            log.error("[Flash Framework] MethodRetry {} execute retry failed,cause:{}", method.getDeclaringClass().getCanonicalName() + "." + method.getName(), Throwables.getStackTraceAsString(e));
         }
     }
 }

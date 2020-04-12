@@ -1,7 +1,7 @@
 package com.flash.framework.core.support.processor.graph.executor;
 
 import com.flash.framework.core.support.processor.BizProcessor;
-import com.flash.framework.core.support.processor.BizProcessorContext;
+import com.google.common.base.Throwables;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,7 +42,7 @@ public class TaskWrapper implements Comparator<TaskWrapper> {
         this.taskName = processor.getProcessName();
     }
 
-    public BizProcessorContext execute(BizProcessorContext context) {
+    public <C> C execute(C context) {
         try {
 
             //需要等待所有前置节点执行完
@@ -71,7 +71,7 @@ public class TaskWrapper implements Comparator<TaskWrapper> {
 
             return context;
         } catch (Exception e) {
-            log.error("[Flash Framework] BizProcessor {} execute failed,cause:", getTaskName(), e);
+            log.error("[Flash Framework] BizProcessor {} execute failed,cause:{}", getTaskName(), Throwables.getStackTraceAsString(e));
             taskExecutor.failed();
             if (Objects.nonNull(latch)) {
                 synchronized (latch) {
@@ -88,11 +88,11 @@ public class TaskWrapper implements Comparator<TaskWrapper> {
         }
     }
 
-    public void rollback(BizProcessorContext context) {
+    public <C> void rollback(C context) {
         try {
             this.processor.failback(context);
         } catch (Exception e) {
-            log.error("[Flash Framework] BizProcessor {} failback failed,cause:", getTaskName(), e);
+            log.error("[Flash Framework] BizProcessor {} failback failed,cause:{}", getTaskName(), Throwables.getStackTraceAsString(e));
         }
     }
 

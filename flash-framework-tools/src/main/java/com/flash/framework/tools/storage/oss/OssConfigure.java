@@ -12,7 +12,7 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 public class OssConfigure {
 
     @NestedConfigurationProperty
-    private ClientConfiguration config;
+    private ClientConfiguration config = new ClientConfiguration();
 
     /**
      * oss存储空间所绑定的自定义域名，如果不配置，上传文件成功后返回默认格式化的文件访问路径

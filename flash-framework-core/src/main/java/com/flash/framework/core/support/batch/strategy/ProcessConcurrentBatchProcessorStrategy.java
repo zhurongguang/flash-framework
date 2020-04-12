@@ -12,7 +12,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 /**
- * 每页一处理，分页插叙顺序执行，对于每页的数据提交线程并发执行
+ * 每页一处理，分页查询顺序执行，对于每页的数据提交线程并发执行
  *
  * @author zhurg
  * @date 2019/11/18 - 下午3:57

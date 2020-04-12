@@ -2,7 +2,7 @@ package com.flash.framework.core.support.processor.chain.executor;
 
 import com.alibaba.fastjson.JSON;
 import com.flash.framework.core.support.processor.BizProcessor;
-import com.flash.framework.core.support.processor.BizProcessorContext;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import lombok.Builder;
@@ -28,9 +28,9 @@ public class ChainTaskExecutor {
 
     private List<BizProcessor> processors;
 
-    public void execute(BizProcessorContext context) {
+    public <C> void execute(C context) throws Exception {
         List<BizProcessor> finished = Lists.newArrayListWithCapacity(processors.size());
-        processors.forEach(processor -> {
+        for (BizProcessor processor : processors) {
             try {
                 if (StringUtils.isBlank(processor.getProcessor().condition())) {
                     processor.execute(context);
@@ -41,24 +41,25 @@ public class ChainTaskExecutor {
                         processor.execute(context);
                         finished.add(processor);
                     } else {
-                        log.info("[Flash Framework] BizProcessor {} was skiped", processor.getProcessName());
+                        log.debug("[Flash Framework] BizProcessor {} was skiped", processor.getProcessName());
                     }
                 }
             } catch (Exception e) {
-                log.error("[Flash Framework] BizProcessor {} ,BizProcessorContext {} execute failed , cause:", processor.getProcessName(),
-                        JSON.toJSONString(context), e);
+                log.error("[Flash Framework] BizProcessor {} ,BizProcessorContext {} execute failed , cause:{}", processor.getProcessName(),
+                        JSON.toJSONString(context), Throwables.getStackTraceAsString(e));
                 if (CollectionUtils.isNotEmpty(finished)) {
                     Collections.reverse(finished);
                     finished.forEach(it -> {
                         try {
                             it.failback(context);
                         } catch (Exception e1) {
-                            log.error("[Flash Framework] BizProcessor {} , BizProcessorContext {} failback failed , cause:", processor.getProcessName(),
-                                    JSON.toJSONString(context), e1);
+                            log.error("[Flash Framework] BizProcessor {} , BizProcessorContext {} failback failed , cause:{}", processor.getProcessName(),
+                                    JSON.toJSONString(context), Throwables.getStackTraceAsString(e1));
                         }
                     });
                 }
+                throw e;
             }
-        });
+        }
     }
 }

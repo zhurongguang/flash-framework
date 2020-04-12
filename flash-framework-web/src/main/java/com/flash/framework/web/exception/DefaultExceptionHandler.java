@@ -1,6 +1,7 @@
 package com.flash.framework.web.exception;
 
 import com.flash.framework.web.response.ResponseResult;
+import com.google.common.base.Throwables;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -39,7 +40,7 @@ public class DefaultExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     protected ResponseResult onException(Exception exception, HttpServletRequest request) {
-        log.error("未捕获的异常 : ", exception);
+        log.error("uncatched exception : {}", Throwables.getStackTraceAsString(exception));
         Locale locale = localResolver.resolveLocale(request);
         String msg = messageSource.getMessage(exception.getMessage(), new String[]{}, "web.error", locale);
         return ResponseResult.builder()

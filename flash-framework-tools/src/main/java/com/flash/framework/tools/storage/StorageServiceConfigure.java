@@ -11,7 +11,7 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
  * @date 2019/6/6 - 下午3:34
  */
 @Data
-@ConfigurationProperties(prefix = "media")
+@ConfigurationProperties(prefix = "storage")
 public class StorageServiceConfigure {
 
     private String accessKeyId;

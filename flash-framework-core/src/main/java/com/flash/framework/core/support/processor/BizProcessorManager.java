@@ -7,6 +7,7 @@ import com.flash.framework.core.support.processor.chain.executor.ChainTaskExecut
 import com.flash.framework.core.support.processor.graph.ProcessorPair;
 import com.flash.framework.core.support.processor.graph.executor.GraphTaskExecutor;
 import com.flash.framework.core.support.processor.graph.executor.TaskWrapper;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -86,7 +87,7 @@ public class BizProcessorManager implements ApplicationContextAware {
      * @param operation
      * @param context
      */
-    public void doProcessors(String bizScope, String operation, BizProcessorContext context) {
+    public <C> void doProcessors(String bizScope, String operation, C context) throws Exception {
         if (chainProcessors.containsKey(resolveBiz(bizScope, operation))) {
             List<BizProcessor> processors = chainProcessors.get(resolveBiz(bizScope, operation));
             ChainTaskExecutor.builder()
@@ -172,7 +173,7 @@ public class BizProcessorManager implements ApplicationContextAware {
                         });
             }
         } catch (Exception e) {
-            log.error("[Flash Framework] load BizProcessor from properties file failed,cause:", e);
+            log.error("[Flash Framework] load BizProcessor from properties file failed,cause:{}", Throwables.getStackTraceAsString(e));
         }
     }
 

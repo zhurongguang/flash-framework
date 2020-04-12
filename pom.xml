@@ -11,6 +11,7 @@
         <module>flash-framework-tools</module>
         <module>flash-framework-web</module>
         <module>flash-framework-commons</module>
+        <module>flash-framework-demo</module>
     </modules>
 
     <repositories>

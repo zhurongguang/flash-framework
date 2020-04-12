@@ -5,7 +5,6 @@ import com.flash.framework.core.support.event.BaseEvent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 
@@ -31,7 +30,7 @@ public class EventLogAop {
         eventLogHandler.createEventLog(log);
     }
 
-    @After(value = "execution(* com.flash.framework.core.support.event.EventHandler.handler(..))")
+    @Before(value = "execution(* com.flash.framework.core.support.event.EventHandler.handler(..))")
     public void eventHandler(JoinPoint joinPoint) {
         BaseEvent event = getArg(joinPoint);
         EventLog log = buildEventLog(event);

@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: flash-framework-demo
+server:
+  port: 8080
+flash.event.log.enable: true
