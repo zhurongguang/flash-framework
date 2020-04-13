@@ -11,7 +11,6 @@ com/flash/framework/core/support/processor/BizProcessorManager.class
 com/flash/framework/core/spring/context/ApplicationContextHolder.class
 com/flash/framework/core/support/retry/RetryAspect.class
 com/flash/framework/core/support/event/log/EventLogHandler.class
-com/flash/framework/core/support/processor/BizProcessorContext.class
 com/flash/framework/core/support/batch/strategy/ProcessConcurrentBatchProcessorStrategy.class
 com/flash/framework/core/support/event/EventService.class
 com/flash/framework/core/support/processor/graph/Edge.class

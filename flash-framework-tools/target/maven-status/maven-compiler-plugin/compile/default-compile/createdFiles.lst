@@ -13,12 +13,10 @@ com/flash/framework/tools/ftp/Ftp.class
 com/flash/framework/tools/storage/oss/OssConfigure.class
 com/flash/framework/tools/ftp/AbstractFtp.class
 com/flash/framework/tools/storage/qiniu/QiniuZone.class
-com/flash/framework/tools/qrcode/BufferedImageLuminanceSource.class
 com/flash/framework/tools/storage/oss/OssProgressListener$1.class
 com/flash/framework/tools/push/jpush/JpushConfigure.class
 com/flash/framework/tools/storage/ObjectStorageResponse.class
 com/flash/framework/tools/push/PushMessage$PushMessageBuilder.class
-com/flash/framework/tools/qrcode/QrCodeUtil.class
 com/flash/framework/tools/storage/StorageService.class
 com/flash/framework/tools/ftp/FtpException.class
 com/flash/framework/tools/push/PushService.class
@@ -31,7 +29,6 @@ com/flash/framework/tools/excel/ReadExcelError.class
 com/flash/framework/tools/push/PushMessage.class
 com/flash/framework/tools/storage/oss/ObjectStorageProgress.class
 com/flash/framework/tools/storage/qiniu/QiniuConfigure.class
-com/flash/framework/tools/qrcode/QrCodeException.class
 com/flash/framework/tools/validators/Validator.class
 com/flash/framework/tools/serialize/Serializer.class
 com/flash/framework/tools/excel/ReadExcelError$ReadExcelErrorBuilder.class
@@ -41,4 +38,3 @@ com/flash/framework/tools/serialize/kryo/factory/ThreadLocalKryoFactory$1.class
 com/flash/framework/tools/storage/ObjectStorageResponse$ObjectStorageResponseBuilder.class
 com/flash/framework/tools/validators/ValidatorChain.class
 com/flash/framework/tools/ftp/Ftp$1.class
-com/flash/framework/tools/qrcode/QrConfig.class
