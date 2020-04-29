@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -141,7 +142,12 @@ public class BizProcessorManager implements ApplicationContextAware {
                 Map<String, BizProcessor> processorMap = Maps.newHashMap();
                 if (MapUtils.isNotEmpty(springProcessorBeans)) {
                     springProcessorBeans.values().forEach(bean -> {
-                        Processor anno = AnnotationUtils.findAnnotation(bean.getClass(), Processor.class);
+                        Processor anno;
+                        if (AopUtils.isAopProxy(bean) || AopUtils.isCglibProxy(bean)) {
+                            anno = AnnotationUtils.findAnnotation(AopUtils.getTargetClass(bean), Processor.class);
+                        } else {
+                            anno = AnnotationUtils.findAnnotation(bean.getClass(), Processor.class);
+                        }
                         if (Objects.isNull(anno)) {
                             throw new BizProcessorException(MessageFormat.format("[Flash Framework] BizProcessor {0} is not annotated by @Processor", bean.getClass()));
                         }

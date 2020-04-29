@@ -6,6 +6,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import org.apache.commons.collections.MapUtils;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -41,7 +42,12 @@ public class ExtensionProviderRegistry implements ApplicationContextAware {
         Map<String, Object> providers = applicationContext.getBeansWithAnnotation(ExtensionProvider.class);
         if (MapUtils.isNotEmpty(providers)) {
             providers.forEach((name, provider) -> {
-                ExtensionProvider ann = AnnotationUtils.findAnnotation(provider.getClass(), ExtensionProvider.class);
+                ExtensionProvider ann;
+                if (AopUtils.isAopProxy(provider) || AopUtils.isCglibProxy(provider)) {
+                    ann = AnnotationUtils.findAnnotation(AopUtils.getTargetClass(provider), ExtensionProvider.class);
+                } else {
+                    ann = AnnotationUtils.findAnnotation(provider.getClass(), ExtensionProvider.class);
+                }
                 for (String bizCode : ann.bizCode()) {
                     if (extensions.contains(ann.group(), ann.bizCode())) {
                         throw new ExtensionException("[Flash Framework] ExtensionProvider group : " + ann.group() + " , bizCode : " + bizCode + " areadly exists");
