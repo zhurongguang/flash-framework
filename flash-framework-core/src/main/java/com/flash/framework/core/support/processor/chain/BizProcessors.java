@@ -39,4 +39,9 @@ public class BizProcessors {
      * 图处理
      */
     private Set<Edge> processorGraph;
+
+    /**
+     * 异步图处理
+     */
+    private boolean graphAsync;
 }

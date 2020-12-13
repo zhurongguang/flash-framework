@@ -1,6 +1,6 @@
 package com.flash.framework.core.support.event.log;
 
-import com.alibaba.fastjson.JSON;
+import com.flash.framework.commons.utils.JacksonUtils;
 import com.flash.framework.core.support.event.BaseEvent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +44,7 @@ public class EventLogAop {
     private EventLog buildEventLog(BaseEvent event) {
         EventLog log = new EventLog();
         log.setEventId(event.getEventId());
-        log.setEvent(JSON.toJSONString(event));
+        log.setEvent(JacksonUtils.JSON_NON_DEFAULT_MAPPER.toJson(event));
         log.setEventClass(event.getClass().toString());
         log.setEventType(event.getEventType());
         log.setPublishTime(new Date());

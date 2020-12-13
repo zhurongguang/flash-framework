@@ -783,15 +783,3 @@ storage:
 		bucket-name: "flash-framework"
 ```
 
-* 七牛云实现
-
-```yaml
-storage:
-	access-key-id: "ak"
-	access-key-secret: "as"
-	qiniu:
-	  zone: huadong
-		domain:
-		bucket-name: "flash-framework"
-```
-

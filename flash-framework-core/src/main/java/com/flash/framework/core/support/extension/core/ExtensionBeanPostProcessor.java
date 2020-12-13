@@ -1,5 +1,7 @@
 package com.flash.framework.core.support.extension.core;
 
+import com.flash.framework.commons.utils.AopUtils;
+import com.flash.framework.core.exception.extension.ExtensionException;
 import com.flash.framework.core.support.extension.annotation.Extension;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections4.CollectionUtils;
@@ -38,33 +40,38 @@ public class ExtensionBeanPostProcessor implements BeanPostProcessor {
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        List<Field> fields = FieldUtils.getFieldsListWithAnnotation(bean.getClass(), Extension.class);
-        if (CollectionUtils.isNotEmpty(fields)) {
-            Map<Class<?>, Object> proxyMap = Maps.newHashMap();
-            fields.forEach(field -> {
-                field.setAccessible(true);
-                Extension ann = AnnotationUtils.findAnnotation(field, Extension.class);
-                String group = ann.value();
-                Class<?> type = field.getType();
-                Object proxy;
-                if (proxyMap.containsKey(type)) {
-                    proxy = proxyMap.get(type);
-                } else {
-                    if (!type.isInterface()) {
-                        //使用cglib代理
-                        Enhancer enhancer = new Enhancer();
-                        enhancer.setSuperclass(type);
-                        enhancer.setCallback(new ExtensionInterceptorHandler(extensionProviderRegistry, group));
-                        proxy = enhancer.create();
+        try {
+            Object currBean = AopUtils.getTarget(bean);
+            List<Field> fields = FieldUtils.getFieldsListWithAnnotation(currBean.getClass(), Extension.class);
+            if (CollectionUtils.isNotEmpty(fields)) {
+                Map<Class<?>, Object> proxyMap = Maps.newHashMap();
+                fields.forEach(field -> {
+                    field.setAccessible(true);
+                    Extension ann = AnnotationUtils.findAnnotation(field, Extension.class);
+                    String group = ann.value();
+                    Class<?> type = field.getType();
+                    Object proxy;
+                    if (proxyMap.containsKey(type)) {
+                        proxy = proxyMap.get(type);
                     } else {
-                        proxy = Proxy.newProxyInstance(bean.getClass().getClassLoader(), new Class<?>[]{type},
-                                new ExtensionInvokerHandler(extensionProviderRegistry, group));
+                        if (!type.isInterface()) {
+                            //使用cglib代理
+                            Enhancer enhancer = new Enhancer();
+                            enhancer.setSuperclass(type);
+                            enhancer.setCallback(new ExtensionInterceptorHandler(extensionProviderRegistry, group));
+                            proxy = enhancer.create();
+                        } else {
+                            proxy = Proxy.newProxyInstance(currBean.getClass().getClassLoader(), new Class<?>[]{type},
+                                    new ExtensionInvokerHandler(extensionProviderRegistry, group));
+                        }
+                        proxyMap.put(type, proxy);
                     }
-                    proxyMap.put(type, proxy);
-                }
 
-                ReflectionUtils.setField(field, bean, proxy);
-            });
+                    ReflectionUtils.setField(field, currBean, proxy);
+                });
+            }
+        } catch (Exception e) {
+            throw new ExtensionException(e.getMessage());
         }
         return bean;
     }

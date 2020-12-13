@@ -3,18 +3,19 @@ package com.flash.framework.tools.storage.oss;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.common.auth.CredentialsProvider;
 import com.aliyun.oss.common.auth.DefaultCredentialProvider;
+import com.aliyun.oss.common.auth.STSAssumeRoleSessionCredentialsProvider;
 import com.aliyun.oss.model.CannedAccessControlList;
 import com.aliyun.oss.model.GetObjectRequest;
 import com.aliyun.oss.model.PutObjectRequest;
+import com.aliyuncs.auth.BasicCredentials;
+import com.aliyuncs.profile.DefaultProfile;
 import com.flash.framework.tools.storage.ObjectStorageResponse;
 import com.flash.framework.tools.storage.StorageService;
 import com.flash.framework.tools.storage.StorageServiceConfigure;
 import com.google.common.base.Throwables;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 import javax.annotation.PreDestroy;
 import java.io.ByteArrayInputStream;
@@ -26,76 +27,79 @@ import java.io.InputStream;
  * @date 2019/6/6 - 下午3:40
  */
 @Slf4j
-public class OssStorageService implements StorageService, ApplicationContextAware {
+public class OssStorageService implements StorageService {
 
     private final StorageServiceConfigure storageServiceConfigure;
 
-    private ObjectStorageProgress objectStorageProgress;
+    private OssConfigure ossConfigure;
 
+    @Getter
     private final OSSClient ossClient;
 
     public OssStorageService(StorageServiceConfigure storageServiceConfigure) {
         this.storageServiceConfigure = storageServiceConfigure;
-        if (StringUtils.isBlank(storageServiceConfigure.getOss().getBucketName())) {
-            throw new IllegalArgumentException("[Flash Framework] Storage properties media.oss.bucketName is null");
+        this.ossConfigure = storageServiceConfigure.getOss();
+        if (StringUtils.isBlank(ossConfigure.getBucketName())) {
+            throw new StorageException("[Flash Framework] Storage properties media.oss.bucketName is null");
         }
         this.ossClient = ossClient();
     }
 
 
     @Override
-    public ObjectStorageResponse upload(String objectName, byte[] bytes) throws Exception {
-        upload(ossClient, new PutObjectRequest(bucketName(), objectName, new ByteArrayInputStream(bytes)), objectName);
+    public ObjectStorageResponse upload(String objectName, byte[] bytes) {
+        upload(ossClient, new PutObjectRequest(ossConfigure.getBucketName(), objectName, new ByteArrayInputStream(bytes)));
         return ObjectStorageResponse.builder().objectName(objectName).objectUrl(getObjectUrl(objectName)).build();
     }
 
     @Override
-    public ObjectStorageResponse upload(String objectName, InputStream inputStream) throws Exception {
-        upload(ossClient, new PutObjectRequest(bucketName(), objectName, inputStream), objectName);
+    public ObjectStorageResponse upload(String objectName, InputStream inputStream) {
+        upload(ossClient, new PutObjectRequest(ossConfigure.getBucketName(), objectName, inputStream));
         return ObjectStorageResponse.builder().objectName(objectName).objectUrl(getObjectUrl(objectName)).build();
     }
 
     @Override
-    public ObjectStorageResponse upload(String objectName, File file) throws Exception {
-        upload(ossClient, new PutObjectRequest(bucketName(), objectName, file), objectName);
+    public ObjectStorageResponse upload(String objectName, File file) {
+        upload(ossClient, new PutObjectRequest(ossConfigure.getBucketName(), objectName, file));
         return ObjectStorageResponse.builder().objectName(objectName).objectUrl(getObjectUrl(objectName)).build();
     }
 
     @Override
-    public void download(String objectName, String localFile) throws Exception {
+    public void download(String objectName, String localFile) {
         try {
-            ossClient.getObject(new GetObjectRequest(bucketName(), objectName)
-                    .withProgressListener(new OssProgressListener(objectName, objectStorageProgress)), new File(localFile));
+            ossClient.getObject(new GetObjectRequest(ossConfigure.getBucketName(), objectName), new File(localFile));
         } catch (Exception e) {
             log.error("[Flash Framework] Storage download failed,cause:{}", Throwables.getStackTraceAsString(e));
+            throw new StorageException(e);
         }
     }
 
     @Override
-    public void download(String objectName, File file) throws Exception {
+    public void download(String objectName, File file) {
         try {
-            ossClient.getObject(new GetObjectRequest(bucketName(), objectName)
-                    .withProgressListener(new OssProgressListener(objectName, objectStorageProgress)), file);
+            ossClient.getObject(new GetObjectRequest(ossConfigure.getBucketName(), objectName), file);
         } catch (Exception e) {
             log.error("[Flash Framework] Storage download failed,cause:{}", Throwables.getStackTraceAsString(e));
+            throw new StorageException(e);
         }
     }
 
     @Override
-    public void delete(String objectName) throws Exception {
+    public void delete(String objectName) {
         try {
-            ossClient.deleteObject(bucketName(), objectName);
+            ossClient.deleteObject(ossConfigure.getBucketName(), objectName);
         } catch (Exception e) {
             log.error("[Flash Framework] Storage delete failed,cause:{}", Throwables.getStackTraceAsString(e));
+            throw new StorageException(e);
         }
     }
 
-    private void upload(OSSClient ossClient, PutObjectRequest putObjectRequest, String objectName) {
+    private void upload(OSSClient ossClient, PutObjectRequest putObjectRequest) {
         try {
-            putObjectRequest.withProgressListener(new OssProgressListener(objectName, objectStorageProgress));
             ossClient.putObject(putObjectRequest);
         } catch (Exception e) {
             log.error("[Flash Framework] Storage upload failed,cause:{}", Throwables.getStackTraceAsString(e));
+            throw new StorageException(e);
         }
     }
 
@@ -145,19 +149,24 @@ public class OssStorageService implements StorageService, ApplicationContextAwar
      * @return
      */
     private OSSClient ossClient() {
-        CredentialsProvider credentialsProvider = new DefaultCredentialProvider(storageServiceConfigure.getAccessKeyId(), storageServiceConfigure.getAccessKeySecret());
-        return new OSSClient(storageServiceConfigure.getOss().getEndpoint().getEndpoint(), credentialsProvider, storageServiceConfigure.getOss().getConfig());
+        CredentialsProvider credentialsProvider;
+        //不使用子账号角色访问
+        if (StringUtils.isBlank(ossConfigure.getRoleArn())) {
+            credentialsProvider = new DefaultCredentialProvider(storageServiceConfigure.getAccessKeyId(), storageServiceConfigure.getAccessKeySecret());
+        } else {
+            DefaultProfile profile = DefaultProfile.getProfile(ossConfigure.getEndpoint().getRegion());
+            BasicCredentials basicCredentials = new BasicCredentials(storageServiceConfigure.getAccessKeyId(), storageServiceConfigure.getAccessKeySecret());
+            credentialsProvider = new STSAssumeRoleSessionCredentialsProvider(basicCredentials, ossConfigure.getRoleArn(), profile)
+                    .withRoleSessionName(ossConfigure.getRoleName());
+        }
+        return new OSSClient(ossConfigure.getEndpoint().getEndpoint(), credentialsProvider, ossConfigure.getConfig());
     }
 
     @PreDestroy
-    public void close(OSSClient ossClient) {
+    public void close() {
         if (null != ossClient) {
             ossClient.shutdown();
         }
-    }
-
-    protected String bucketName() {
-        return storageServiceConfigure.getOss().getBucketName();
     }
 
     /**
@@ -168,8 +177,7 @@ public class OssStorageService implements StorageService, ApplicationContextAwar
      * @return 文件访问地址
      */
     protected String getDefaultObjectUrl(String objectName) {
-        return String.format("https://%s.%s/%s", bucketName(), storageServiceConfigure.getOss().getEndpoint().getEndpoint()
-                .replace("http://", ""), objectName);
+        return String.format("%s://%s.%s/%s", ossConfigure.getProtocol(), ossConfigure.getBucketName(), ossConfigure.getEndpoint().getEndpoint(), objectName);
     }
 
     /**
@@ -179,18 +187,10 @@ public class OssStorageService implements StorageService, ApplicationContextAwar
      * @return 文件访问地址
      */
     protected String getObjectUrl(String objectName) {
-        if (StringUtils.isNotBlank(storageServiceConfigure.getOss().getDomain())) {
-            return String.format(storageServiceConfigure.getOss().getDomain() + "/%s", objectName);
+        //自定义域名访问
+        if (StringUtils.isNotBlank(ossConfigure.getDomain())) {
+            return String.format("%s/%s", ossConfigure.getDomain(), objectName);
         }
         return getDefaultObjectUrl(objectName);
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        try {
-            objectStorageProgress = applicationContext.getBean(ObjectStorageProgress.class);
-        } catch (Exception e) {
-
-        }
     }
 }

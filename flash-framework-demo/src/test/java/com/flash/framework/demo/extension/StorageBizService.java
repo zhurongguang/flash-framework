@@ -1,6 +1,7 @@
 package com.flash.framework.demo.extension;
 
 import com.flash.framework.core.support.extension.annotation.Extension;
+import com.flash.framework.core.support.retry.Retry;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,6 +19,7 @@ public class StorageBizService {
      *
      * @param bizCode
      */
+    @Retry
     public void save(String bizCode) {
         storageService.save(bizCode);
     }

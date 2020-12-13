@@ -28,4 +28,19 @@ public class OssConfigure {
      * 存储空间名称
      */
     private String bucketName;
+
+    /**
+     * STS roleArn
+     */
+    private String roleArn;
+
+    /**
+     * STS roleSessionName
+     */
+    private String roleName;
+
+    /**
+     * 协议
+     */
+    private String protocol = "http";
 }

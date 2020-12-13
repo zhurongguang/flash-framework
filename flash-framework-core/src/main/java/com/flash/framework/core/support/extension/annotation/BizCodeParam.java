@@ -1,5 +1,7 @@
 package com.flash.framework.core.support.extension.annotation;
 
+import org.springframework.core.annotation.AliasFor;
+
 import java.lang.annotation.*;
 
 /**
@@ -18,4 +20,12 @@ public @interface BizCodeParam {
      * @return
      */
     String el() default "";
+
+    /**
+     * spel 表达式
+     *
+     * @return
+     */
+    @AliasFor(attribute = "el")
+    String value() default "";
 }

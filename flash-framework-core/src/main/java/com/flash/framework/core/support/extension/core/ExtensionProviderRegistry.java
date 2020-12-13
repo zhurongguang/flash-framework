@@ -43,7 +43,7 @@ public class ExtensionProviderRegistry implements ApplicationContextAware {
         if (MapUtils.isNotEmpty(providers)) {
             providers.forEach((name, provider) -> {
                 ExtensionProvider ann;
-                if (AopUtils.isAopProxy(provider) || AopUtils.isCglibProxy(provider)) {
+                if (AopUtils.isAopProxy(provider)) {
                     ann = AnnotationUtils.findAnnotation(AopUtils.getTargetClass(provider), ExtensionProvider.class);
                 } else {
                     ann = AnnotationUtils.findAnnotation(provider.getClass(), ExtensionProvider.class);
