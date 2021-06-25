@@ -15,7 +15,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
  * @date 2019/11/26 - 下午1:45
  */
 @Publisher(source = EventSource.EVENT_BUS)
-@ConditionalOnProperty(name = "flash.event.enable", havingValue = "true")
+@ConditionalOnProperty(name = "flash.framework.event.enable", havingValue = "true")
 public class EventBusEventPublisher implements EventPublisher {
 
     @Autowired

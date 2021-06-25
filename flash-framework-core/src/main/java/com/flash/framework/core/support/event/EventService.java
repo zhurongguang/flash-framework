@@ -23,7 +23,7 @@ import java.util.Objects;
  * @date 2019/11/26 - 下午1:49
  */
 @Component
-@ConditionalOnProperty(name = "flash.event.enable", havingValue = "true")
+@ConditionalOnProperty(name = "flash.framework.event.enable", havingValue = "true")
 public class EventService implements ApplicationContextAware {
 
     private Map<String, EventPublisher> eventPusblishers = Maps.newConcurrentMap();

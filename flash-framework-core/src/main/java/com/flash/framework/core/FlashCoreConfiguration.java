@@ -59,10 +59,12 @@ public class FlashCoreConfiguration {
     @Bean
     @ConditionalOnMissingBean(name = "bizProcessorTaskExecutor")
     public ThreadPoolTaskExecutor bizProcessorTaskExecutor(@Value("${flash.framework.bizProcessors.queue:1024}") int queue,
-                                                           @Value("${flash.framework.bizProcessors.keepAliveSeconds:3}") int keepAliveSeconds) {
+                                                           @Value("${flash.framework.bizProcessors.keepAliveSeconds:3}") int keepAliveSeconds,
+                                                           @Value("${flash.framework.bizProcessors.corePoolSize:10}") int corePoolSize,
+                                                           @Value("${flash.framework.bizProcessors.maxPoolSize:50}") int maxPoolSize) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(Runtime.getRuntime().availableProcessors());
-        executor.setMaxPoolSize(executor.getCorePoolSize() * 2 + 1);
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
         executor.setKeepAliveSeconds(keepAliveSeconds);
         executor.setQueueCapacity(queue);
         executor.setThreadNamePrefix("BizProcessor-thread-execute");
@@ -81,11 +83,13 @@ public class FlashCoreConfiguration {
 
         @Bean
         @ConditionalOnMissingBean(name = "eventBusThreadPoolTaskExecutor")
-        public ThreadPoolTaskExecutor eventBusThreadPoolTaskExecutor(@Value("${eventbus.queue:1024}") int queue,
-                                                                     @Value("${eventbus.keepAliveSeconds:3}") int keepAliveSeconds) {
+        public ThreadPoolTaskExecutor eventBusThreadPoolTaskExecutor(@Value("${flash.framework.eventbus.queue:1024}") int queue,
+                                                                     @Value("${flash.framework.eventbus.keepAliveSeconds:3}") int keepAliveSeconds,
+                                                                     @Value("${flash.framework.eventbus.corePoolSize:10}") int corePoolSize,
+                                                                     @Value("${flash.framework.eventbus.maxPoolSize:50}") int maxPoolSize) {
             ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-            executor.setCorePoolSize(Runtime.getRuntime().availableProcessors());
-            executor.setMaxPoolSize(executor.getCorePoolSize() * 2 + 1);
+            executor.setCorePoolSize(corePoolSize);
+            executor.setMaxPoolSize(maxPoolSize);
             executor.setKeepAliveSeconds(keepAliveSeconds);
             executor.setQueueCapacity(queue);
             executor.setThreadNamePrefix("EventBus-thread-execute");
@@ -94,14 +98,14 @@ public class FlashCoreConfiguration {
         }
 
         @Bean
-        @ConditionalOnProperty(name = "flash.event.log.enable", havingValue = "true")
+        @ConditionalOnProperty(name = "flash.framework.event.log.enable", havingValue = "true")
         @ConditionalOnMissingBean(EventLogHandler.class)
         public EventLogHandler eventLogHandler() {
             return new RedisEventLogHandler();
         }
 
         @Bean
-        @ConditionalOnProperty(name = "flash.event.log.enable", havingValue = "true")
+        @ConditionalOnProperty(name = "flash.framework.event.log.enable", havingValue = "true")
         @ConditionalOnBean(EventLogHandler.class)
         public EventLogAop eventRecordAop(EventLogHandler eventLogHandler) {
             return new EventLogAop(eventLogHandler);

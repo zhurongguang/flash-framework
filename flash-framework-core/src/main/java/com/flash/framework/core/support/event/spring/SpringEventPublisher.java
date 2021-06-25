@@ -15,7 +15,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
  * @date 2019/11/26 - 下午1:41
  */
 @Publisher(source = EventSource.SPRING)
-@ConditionalOnProperty(name = "flash.event.enable", havingValue = "true")
+@ConditionalOnProperty(name = "flash.framework.event.enable", havingValue = "true")
 public class SpringEventPublisher implements EventPublisher, ApplicationEventPublisherAware {
 
     private ApplicationEventPublisher applicationEventPublisher;

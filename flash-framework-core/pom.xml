@@ -68,5 +68,11 @@
             <groupId>com.flash.framework</groupId>
             <artifactId>flash-framework-commons</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
